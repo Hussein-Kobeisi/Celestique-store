@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel
+    depends_on:
+      - mysql
+    ports:
+      - "8000:80"       # Map Apache 80 inside container to 8000 on host
+    volumes:
+      - ./backend:/var/www/html  # Optional for live code sync
+    environment:
+      # Pass environment variables if needed, or use Laravel .env file
+      # For example:
+      DB_HOST: mysql
+      DB_DATABASE: laravel_db
+      DB_USERNAME: user
+      DB_PASSWORD: secret
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"     # React served by nginx on port 80 inside container, mapped to 3000
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge
