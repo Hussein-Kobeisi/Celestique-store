@@ -6,10 +6,10 @@ services:
     container_name: mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootsecret
-      MYSQL_DATABASE: laravel_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: celestiquerootsecret
+      MYSQL_DATABASE: celestique_db
+      MYSQL_USER: team4
+      MYSQL_PASSWORD: team4secret
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -17,34 +17,33 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: ./celestique-backend
+      dockerfile: DockerFile
     container_name: laravel
     depends_on:
       - mysql
     ports:
-      - "8000:80"       # Map Apache 80 inside container to 8000 on host
+      - "8000:80"
     volumes:
-      - ./backend:/var/www/html  # Optional for live code sync
+      - ./celestique-backend/storage:/var/www/storage
+      - ./celestique-backend/bootstrap/cache:/var/www/bootstrap/cache
     environment:
-      # Pass environment variables if needed, or use Laravel .env file
-      # For example:
       DB_HOST: mysql
-      DB_DATABASE: laravel_db
-      DB_USERNAME: user
-      DB_PASSWORD: secret
+      DB_DATABASE: celestique_db
+      DB_USERNAME: team4
+      DB_PASSWORD: team4secret
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: ./celestique-frontend
+      dockerfile: DockerFile
     container_name: react
     depends_on:
       - backend
     ports:
-      - "3000:80"     # React served by nginx on port 80 inside container, mapped to 3000
+      - "3000:80"
     networks:
       - app-network
 
